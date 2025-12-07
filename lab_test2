@@ -1,0 +1,48 @@
+# ======= Problem 2: Diffie–Hellman + Affine Cipher =======
+import random
+from math import gcd
+
+# --- Diffie-Hellman Key Exchange ---
+def diffie_hellman(p: int, g: int):
+    a = random.randint(2, p-2)  # Alice secret
+    b = random.randint(2, p-2)  # Bob secret
+
+    A = pow(g, a, p)  # Alice public
+    B = pow(g, b, p)  # Bob public
+
+    k1 = pow(B, a, p)  # Alice shared key
+    k2 = pow(A, b, p)  # Bob shared key
+
+    assert k1 == k2  # Shared key established
+    return k1, k2, a, b, A, B
+
+# --- Affine Cipher ---
+def mod_inverse(a, m):
+    for x in range(1, m):
+        if (a * x) % m == 1:
+            return x
+    raise ValueError("No modular inverse exists")
+
+# encrypt: c = (k1*m + k2) mod p
+def affine_encrypt(m, k1, k2, p):
+    if m >= p:
+        raise ValueError("Message must be < p")
+    return (k1*m + k2) % p
+
+# decrypt: m = (c - k2) * inv(k1) mod p
+def affine_decrypt(c, k1, k2, p):
+    inv = mod_inverse(k1, p)
+    return ((c - k2) * inv) % p
+
+
+if __name__ == "__main__":
+    p = 10007  # example prime
+    g = 5      # generator
+
+    k1, k2, a, b, A, B = diffie_hellman(p, g)
+    print("Shared key:", k1)
+
+    message = 1234
+    cipher = affine_encrypt(message, k1, k2, p)
+    print("Encrypted:", cipher)
+    print("Decrypted:", affine_decrypt(cipher, k1, k2, p))
