@@ -1,0 +1,40 @@
+# ======= Problem 1: Vigenere-like decryption (53-character alphabet) =======
+ALPHABET = [chr(i) for i in range(ord('a'), ord('z')+1)] + \
+           [chr(i) for i in range(ord('A'), ord('Z')+1)] + [' ']
+VAL = {ch: i for i, ch in enumerate(ALPHABET)}
+REV = {i: ch for i, ch in enumerate(ALPHABET)}
+MOD = len(ALPHABET)  # 53
+
+# Decrypt function
+def decrypt_vigenere(ciphertext: str, keyword: str) -> str:
+    if not keyword:
+        raise ValueError("Keyword must be non-empty")
+    for ch in ciphertext + keyword:
+        if ch not in VAL:
+            raise ValueError(f"Unsupported char: {repr(ch)}")
+    result = []
+    for i, c in enumerate(ciphertext):
+        k = keyword[i % len(keyword)]
+        val = (VAL[c] - VAL[k]) % MOD
+        result.append(REV[val])
+    return ''.join(result)
+
+# Encrypt (optional for testing)
+def encrypt_vigenere(plaintext: str, keyword: str) -> str:
+    for ch in plaintext + keyword:
+        if ch not in VAL:
+            raise ValueError(f"Unsupported char: {repr(ch)}")
+    res = []
+    for i, p in enumerate(plaintext):
+        k = keyword[i % len(keyword)]
+        c = (VAL[p] + VAL[k]) % MOD
+        res.append(REV[c])
+    return ''.join(res)
+
+# Example usage
+if __name__ == "__main__":
+    pt = "abcXYZ "
+    kw = "xy"
+    encrypted = encrypt_vigenere(pt, kw)
+    print("Encrypted =", encrypted)
+    print("Decrypted =", decrypt_vigenere(encrypted, kw))
